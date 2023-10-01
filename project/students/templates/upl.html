@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Upload new File</h1>
+<form method=post enctype=multipart/form-data>
+  <input type=file name=file>
+  Name <input  name=stdent_name>
+  age <input  type='number' name=age>
+  <input type=submit value=Upload>
+</form>
+
+{% endblock %}

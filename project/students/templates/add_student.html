@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  {% macro validate_field(field) %}
+    {% if field.errors %}
+      <div class=errors>
+      {% for error in field.errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endmacro %}
+
+  <h1> Create a new Student</h1>
+
+  <form method="POST" action="#">
+      {{ form.csrf_token }}
+          {{ form.name.label }}
+          {{ form.name }}
+          {{ validate_field(form.name) }}<br><br>
+
+          {{ form.age.label }}
+          {{ form.age }}
+          {{ validate_field(form.age) }}<br><br>
+
+          {{ form.submit() }}
+
+  </form>
+{% endblock %}
+
+

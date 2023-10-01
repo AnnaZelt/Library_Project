@@ -1,7 +1,5 @@
-from flask import Flask
+from project import app
 
-app = Flask(__name__)
-app.secret_key = 'blabla'
 
 if __name__ == '__main__':
     app.run(debug=True)
