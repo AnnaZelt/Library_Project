@@ -25,9 +25,9 @@ Migrate(app, db)
 ##########################################
 
 from project.core.views import core
-from project.clubs.views import clubs
-from project.students.views import students
+from project.books.views import books
+from project.customers.views import customers
 
-app.register_blueprint(students)
+app.register_blueprint(customers)
 app.register_blueprint(core)
-app.register_blueprint(clubs)
+app.register_blueprint(books)

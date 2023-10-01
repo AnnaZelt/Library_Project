@@ -12,7 +12,7 @@
     {% endif %}
   {% endmacro %}
 
-  <h1> Create a new club</h1>
+  <h1> Create a new book </h1>
 
   <form method="POST" action="#">
       {{ form.csrf_token }}
@@ -20,9 +20,17 @@
           {{ form.name }}
           {{ validate_field(form.name) }}<br><br>
 
-          {{ form.description.label }} <br>
-          {{ form.description(rows=10, cols=50) }}
-          {{ validate_field(form.description) }}<br><br>
+          {{ form.author.label }} <br>
+          {{ form.author }}
+          {{ validate_field(form.author) }}<br><br>
+
+          {{ form.year_published.label }} <br>
+          {{ form.year_published }}
+          {{ validate_field(form.year_published) }}<br><br>
+
+          {{ form.type.label }} <br>
+          {{ form.type }}
+          {{ validate_field(form.type) }}<br><br>
 
           {{ form.submit() }}
 

@@ -1,21 +1,21 @@
 from project import db,app
 
-class Students(db.Model):
+class Book(db.Model):
 
-    __tablename__ = 'students'
+    __tablename__ = 'books'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, index=True)
-    age = db.Column(db.Integer)
-    img = db.Column(db.String(50))
-    
+    author = db.Column(db.String(64))
+    year_published = db.Column(db.Integer)
+    type = db.Column(db.Integer)
 
     # initialise an instance (row) of a table/entity
-    def __init__(self, name, age,img):
+    def __init__(self, name, author, year_published, type):
         self.name = name
-        self.img = img
-        self.age = age
-
+        self.author = author
+        self.year_published = year_published
+        self.type = type
 
     # __repr__ is used to represent an instance, such as for print() function
     def __repr__(self):
