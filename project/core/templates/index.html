@@ -1,8 +1,44 @@
-{% extends 'base.html' %}
-
-{% block content %}
-
-  <h1> Club App</h1>
-  <p>Use the navigation to create a new club or list all clubs.</p>
-
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flask Blueprints</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    Customers:
+    <div id = "display">
+        <script>
+            const MY_SERVER = 'http://127.0.0.1:5000/'
+            const get_data = async () => {
+                res = await axios.get(MY_SERVER)
+                display.innerHTML = `
+                <table style="border: 2px;">
+                    <tr>
+                        <th>name</th>
+                        <th>city</th>
+                        <th>age</th>
+                    </tr>
+                </table>
+                `+res.data.map(customer =>
+                    `<table style="border: 2px;">
+                        <tr>
+                            <td>${customer.name}</td>
+                            <td>${customer.city}</td>
+                            <td>${customer.age}</td>
+                            <td>
+                                <button class='btn btn-danger' onClick='del_stu(${customer.id})'>Delete</Button>
+                                <button class='btn btn-info' onClick='stu_edit(${customer.id})'>Edit</Button>
+                            </td>
+                        </tr>
+                    </table>
+                    `
+                ).join('')
+            }
+            const del_stu = (id) => axios.delete(MY_SERVER+'/'+id)
+            const stu_edit = (id) => console.log("edited"+id);
+            get_data()
+        </script>
+    </div>
+</body>
+</html>

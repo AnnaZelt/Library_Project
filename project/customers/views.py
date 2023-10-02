@@ -66,32 +66,44 @@ customers = Blueprint('customers', __name__, template_folder='templates',url_pre
 
 
 
-@customers.route('/add_customer', methods=['POST', 'get'])
+# @customers.route('/add_customer', methods=['POST', 'get'])
+# def add_customer():
+#     data = request.get_json()
+
+#     if data:
+#         name = data.get('name')
+#         city = data.get('city')
+#         age = data.get('age')
+
+#         if name and city and age:
+#             customer = Customers(name=name, city=city, age=age)
+
+#             db.session.add(customer)
+#             db.session.commit()
+
+#             return jsonify({"message": "Customer added successfully"})
+#         else:
+#             return jsonify({"error": "Invalid data provided"})
+#     else:
+#         return jsonify({"error": "Invalid JSON data provided"})
+
+@app.route('/add_customer',methods=['post'])
 def add_customer():
-    data = request.get_json()
+        data = request.get_json()
+        
+        if data:
+            name = data.get('name')
+            city = data.get('city')
+            age = data.get('age')
 
-    if data:
-        name = data.get('name')
-        city = data.get('city')
-        age = data.get('age')
-
-        if name and city and age:
-            customer = Customers(name=name, city=city, age=age)
-
-            db.session.add(customer)
-            db.session.commit()
-
-            return jsonify({"message": "Customer added successfully"})
-        else:
-            return jsonify({"error": "Invalid data provided"})
-    else:
-        return jsonify({"error": "Invalid JSON data provided"})
-
-# You can remove the GET method route if you don't need it for adding customers via GET requests.
+            if name and city and age:
+                new_customer = Customers(name=name, city=city, age=age)
+                db.session.add (new_customer)
+                db.session.commit()
+                return {'add':"true"}
 
 
-
-@customers.route('/list_customers')
+@customers.route('/list_customers', methods=['get'])
 def list_customers():
     customer_list = Customers.query.all()
     res = []
