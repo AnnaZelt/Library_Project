@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy import Column, Integer, ForeignKey, Date, String, create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
@@ -53,8 +54,25 @@ class Loan(Base):
 
 engine = create_engine('sqlite:///library.db', echo=True)
 
-Base.metadata.create_all(engine)  # Creates all tables
+# Creates dummy data
+def init_data():
+    customer1 = Customer(name='Customer 1', email='customer1@example.com')
+    customer2 = Customer(name='Customer 2', email='customer2@example.com')
 
-# Creates a session to interact with the database
-Session = sessionmaker(bind=engine)
-session = Session()
+    book1 = Book(title='Title 1', author='Author 1', copies_available=10)
+    book2 = Book(title='Title 2', author='Author 2', copies_available=15)
+
+    # Creates a Loan entry (with references to customers and books)
+    loan1 = Loan(customer=customer1, book=book1, due_date=datetime.date(2023, 12, 31))
+    loan2 = Loan(customer=customer2, book=book2, due_date=datetime.date(2023, 11, 15))
+
+    # Creates all tables
+    Base.metadata.create_all(engine)  
+
+    # Creates a session to interact with the database
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # Add and commit changes to DB
+    session.add_all([customer1, customer2, book1, book2, loan1, loan2])
+    session.commit()
