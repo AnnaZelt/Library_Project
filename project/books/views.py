@@ -4,7 +4,6 @@ from flask import Blueprint
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-# Replace 'your_database_uri' with the actual database URI
 engine = create_engine('sqlite:///library.db')
 Session = sessionmaker(bind=engine)
 

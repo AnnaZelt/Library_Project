@@ -8,49 +8,34 @@
     <title>Document</title>
 </head>
 <body>
-    blblbbl
-    <div id = "display">
-        <script>
-            const MY_SERVER = 'http://127.0.0.1:5000';
-        
-            const get_books = async () => {
-                const res = await axios.get(MY_SERVER + '/books');
-                const books = res.data;
-        
-                const table = document.createElement('table');
-                table.classList.add('table', 'table-bordered');
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Available Copies</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${books.map(book => `
-                            <tr>
-                                <td>${book.id}</td>
-                                <td>${book.title}</td>
-                                <td>${book.author}</td>
-                                <td>${book['available copies']}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                `;
-        
-                const display = document.getElementById('display');
-                display.innerHTML = '';
-                display.appendChild(table);
-            };
-        
-            const del_stu = (id) => axios.delete(MY_SERVER + '/' + id);
-            const stu_edit = (id) => console.log("edited " + id);
-        
-            get_books();
-        </script>
-        
+    _+_+_+_+_+_+_+_+_+_
+    <div id="display_books">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Available Copies</th>
+                </tr>
+            </thead>
+            <tbody id="book-table-body"></tbody>
+        <table>        
+    </div><br>
+    <div id="display_customers">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="customer-table-body"></tbody>
+        <table>        
     </div>
+    <!-- const del_stu = (id) => axios.delete(MY_SERVER + '/' + id);
+    const stu_edit = (id) => console.log("edited " + id); -->
+    <script src="/static/views.js"></script>
 </body>
 </html>
