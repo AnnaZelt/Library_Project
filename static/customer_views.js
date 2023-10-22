@@ -1,3 +1,5 @@
+const MY_SERVER = 'http://127.0.0.1:5000';
+
 const getCustomers = async () => {
     try {
         const response = await axios.get(MY_SERVER + '/customers');
@@ -111,9 +113,6 @@ document.getElementById('customer-table-body').addEventListener('click', async (
     }
 });
 
-
-
-
 document.getElementById('add_customer_form').addEventListener('submit', async (event) => {
     event.preventDefault(); // Prevent the default form submission behavior
 
@@ -141,58 +140,4 @@ document.getElementById('add_customer_form').addEventListener('submit', async (e
     }
 });
 
-document.getElementById('update_customer_form').addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
-
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-
-    const customerData = {
-        name: name,
-        email: email
-    };
-
-    try {
-        const response = await axios.put(MY_SERVER + '/customers/update', customerData, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Handle the server response, e.g., display a success message
-        console.log('Customer added:', response.data);
-        // You can also update the customer table with the newly added customer here
-    } catch (error) {
-        console.error('Error adding customer:', error);
-    }
-});
-
-document.getElementById('delete_customer_form').addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
-
-    const id = document.getElementById('id').value;
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-
-    const customerData = {
-        id: id,
-        name: name,
-        email: email
-    };
-
-    try {
-        const response = await axios.delete(MY_SERVER + '/customers/delete', customerData, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Handle the server response, e.g., display a success message
-        console.log('Customer deleted:', response.data);
-        // You can also update the customer table with the newly added customer here
-    } catch (error) {
-        console.error('Error adding customer:', error);
-    }
-});
-    
 getCustomers();
