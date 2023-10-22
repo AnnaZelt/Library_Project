@@ -17,7 +17,7 @@ class Customer(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    loans = relationship('Loan', back_populates='customer')
+    loans = relationship('Loan', back_populates='customer', cascade='all, delete-orphan')
 
 class Book(Base):
     __tablename__ = 'books'
@@ -26,7 +26,7 @@ class Book(Base):
     title = Column(String, nullable=False)
     author = Column(String, nullable=False)
     copies_available = Column(Integer, nullable=False)
-    loans = relationship('Loan', back_populates='book')
+    loans = relationship('Loan', back_populates='book', cascade='all, delete-orphan')
     
     # A check constraint to ensure copies_available is non-negative
     __table_args__ = (CheckConstraint('copies_available >= 0', name='check_copies_available'),)

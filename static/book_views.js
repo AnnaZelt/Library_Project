@@ -21,24 +21,4 @@ const getBooks = async () => {
     }
 };
 
-const getCustomers = async () => {
-    try {
-        const response = await axios.get(MY_SERVER + '/customers');
-        const customers = response.data;
-        const tableBody = document.getElementById('customer-table-body');
-
-        customers.forEach(customer => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${customer.id}</td>
-                <td>${customer.name}</td>
-                <td>${customer.email}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-    } catch (error) {
-        console.error(error);
-    }
-};
 getBooks();
-getCustomers();
