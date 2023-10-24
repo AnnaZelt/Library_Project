@@ -13,6 +13,7 @@ const getBooks = async () => {
                 <td>${book.title}</td>
                 <td>${book.author}</td>
                 <td>${book['available copies']}</td>
+                <td data-loan-start-date="2023-10-12T12:00:00" data-due-date="2023-10-15T12:00:00" class="update-timer"></td>
                 <td>
                     <button class="btn btn-danger delete_book" data-id="${book.id}">Delete</button>
                     <button class="btn btn-info update_book" data-id="${book.id}">Update</button>
@@ -71,6 +72,10 @@ document.getElementById('book-table-body').addEventListener('click', async (even
             copiesAvailableInput.type = 'number';
             copiesAvailableInput.placeholder = 'New Available Copies';
 
+            const durtionTypeInput = document.createElement('input');
+            durtionTypeInput.type = 'number';
+            durtionTypeInput.placeholder = 'New Duration Type';
+
             // Create a button to submit the update
             const updateButton = document.createElement('button');
             updateButton.textContent = 'Submit';
@@ -79,15 +84,17 @@ document.getElementById('book-table-body').addEventListener('click', async (even
                 const newTitle = titleInput.value;
                 const newAuthor = authorInput.value;
                 const newCopiesAvailable = copiesAvailableInput.value;
+                const newdurtionType = durtionTypeInput.value
 
                 // Check if all fields are provided
-                if (newTitle && newAuthor && newCopiesAvailable !== '') {
+                if (newTitle && newAuthor && newCopiesAvailable &&newdurtionType !== '') {
                     // Use the `bookId` to identify the book to update
                     const bookId = event.target.getAttribute('data-id');
                     const bookData = {
                         title: newTitle,
                         author: newAuthor,
-                        copies_available: newCopiesAvailable
+                        copies_available: newCopiesAvailable,
+                        loan_duration_type: newdurtionType
                     };
 
                     try {
@@ -115,6 +122,7 @@ document.getElementById('book-table-body').addEventListener('click', async (even
             updateForm.appendChild(titleInput);
             updateForm.appendChild(authorInput);
             updateForm.appendChild(copiesAvailableInput);
+            updateForm.appendChild(durtionTypeInput);
             updateForm.appendChild(updateButton);
 
             // Insert the update form into the row
@@ -129,11 +137,13 @@ document.getElementById('add_book_form').addEventListener('submit', async (event
     const title = document.getElementById('title').value;
     const author = document.getElementById('author').value;
     const copies_available = document.getElementById('copies_available').value;
+    const loan_duration_type =document.getElementById('loan_duration_type').value
 
     const bookData = {
         title: title,
         author: author,
-        copies_available: copies_available
+        copies_available: copies_available,
+        loan_duration_type: loan_duration_type
     };
 
     try {
@@ -150,6 +160,33 @@ document.getElementById('add_book_form').addEventListener('submit', async (event
     } catch (error) {
         console.error('Error adding book:', error);
     }
+});
+
+// Function to update countdown timer
+function updateCountdownTimer(loanStartDate, dueDate) {
+    const now = new Date();
+    const timeRemaining = dueDate - now;
+
+    if (timeRemaining <= 0) {
+        // If the due date has passed, display an appropriate message
+        return "Overdue.";
+    }
+
+    const daysRemaining = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+    const hoursRemaining = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutesRemaining = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+
+    return `${daysRemaining}d ${hoursRemaining}h ${minutesRemaining}m`;
+}
+
+// Get all elements with the 'update-timer' class and update their countdown timers
+document.querySelectorAll('.update-timer').forEach(timerElement => {
+    const loanStartDate = new Date(timerElement.getAttribute('data-loan-start-date'));
+    const dueDate = new Date(timerElement.getAttribute('data-due-date'));
+    timerElement.textContent = updateCountdownTimer(loanStartDate, dueDate);
+    setInterval(() => {
+        timerElement.textContent = updateCountdownTimer(loanStartDate, dueDate);
+    }, 60000); // Update every minute (adjust as needed)
 });
 
 getBooks();

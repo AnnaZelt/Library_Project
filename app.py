@@ -1,7 +1,7 @@
 from models.models import init_data
 from views import app
 
-DEBUG = 0
+DEBUG = 1
 if __name__ == '__main__':
     if DEBUG:
         init_data()
