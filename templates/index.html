@@ -1,19 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        .table {
+            margin: 20px;
+        }
+        .grid-form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px; /* Adjust the gap as needed */
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #menu {
+            display: flex;
+            justify-content: space-between;
+        }
+        #add_forms {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
     <title>Document</title>
 </head>
-
 <body>
-    _+_+_+_+_+_+_+_+_+_
-    <div >
-        <div id="display_books">
+    <div class="container">
+        <div id="menu" style="display: flex; justify-content: center; gap: 10px;">
+            <button id="toggleBooksTable">Toggle Books Table</button>
+            <button id="toggleCustomersTable">Toggle Customers Table</button>
+            <button id="toggleLoansTable">Toggle Loans Table</button>
+        </div><br>        
+        <div id="add_forms">
+            <div id="add_book_form" class="grid-form">
+                <form>
+                    <h2>Add Book</h2>
+                    <div class="form-group">
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author:</label>
+                        <input type="text" id="author" name="author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="copies_available">Available copies:</label>
+                        <input type="number" id="copies_available" name="copies_available" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loan_duration_type">Loan type:</label>
+                        <input type="number" id="loan_duration_type" name="loan_duration_type" required>
+                    </div><br>
+                    <button type="submit">Add Book</button>
+                </form>
+            </div>
+            <div id="add_customer_form" class="grid-form">
+                <form>
+                    <h2>Add Customer</h2>
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div><br>
+                    <button type="submit">Add Customer</button>
+                </form>
+            </div>
+        </div>
+        <div id="display_books" style="display: none;">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -21,35 +93,14 @@
                         <th>Title</th>
                         <th>Author</th>
                         <th>Available Copies</th>
+                        <th>Loan Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="book-table-body"></tbody>
             </table>
         </div>
-        <div id="add_book_form">
-            <table>
-                <form>
-                    <h2>Add Book</h2>
-                    <label for="title">Title:</label>
-                    <input type="text" id="title" name="title" required><br>
-
-                    <label for="author">Author:</label>
-                    <input type="text" id="author" name="author" required><br>
-
-                    <label for="copies_available">Available copies:</label>
-                    <input type="number" id="copies_available" name="copies_available" required><br>
-
-                    <label for="loan_duration_type">Loan type:</label>
-                    <input type="number" id="loan_duration_type" name="loan_duration_type" required><br>
-
-                    <button type="submit">Add Book</button>
-                </form>
-            </table>
-        </div>
-        <script type="module" src="/static/book_views.js"></script>
-    </div><br>
-    <div>
-        <div id="display_customers">
+        <div id="display_customers" style="display: none;">
             <table class="table table-bordered">
                 <thead>
                     <tr>
@@ -61,20 +112,26 @@
                 </thead>
                 <tbody id="customer-table-body"></tbody>
             </table>
-        </div><br>
-        <div id="add_customer_form">
-            <form>
-                <h2>Add Customer</h2>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required><br>
-
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required><br>
-
-                <button type="submit">Add Customer</button>
-            </form>
         </div>
-        <script type="module" src="/static/customer_views.js"></script>
+        <div id="display_loans" style="display: none;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer ID</th>
+                        <th>Book ID</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Loan Start Date</th>
+                    </tr>
+                </thead>
+                <tbody id="loan-table-body"></tbody>
+            </table>
+        </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="/static/book_views.js"></script>
+    <script type="module" src="/static/customer_views.js"></script>
+    <script type="module" src="/static/loan_views.js"></script>
 </body>
 </html>

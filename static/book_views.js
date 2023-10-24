@@ -12,19 +12,24 @@ const getBooks = async () => {
                 <td>${book.id}</td>
                 <td>${book.title}</td>
                 <td>${book.author}</td>
-                <td>${book['available copies']}</td>
-                <td data-loan-start-date="2023-10-12T12:00:00" data-due-date="2023-10-15T12:00:00" class="update-timer"></td>
+                <td>${book.copies_available}</td>
+                <td>${book.loan_duration_type}</td>               
                 <td>
                     <button class="btn btn-danger delete_book" data-id="${book.id}">Delete</button>
                     <button class="btn btn-info update_book" data-id="${book.id}">Update</button>
+                    <button class="loan-book-button" data-bookid="${book.id}">Loan</button>
+                    <button class="return-book-button" data-bookid="${book.id}" style="display: none;">Return</button>
                 </td>
-                `;
-                tableBody.appendChild(row);
-            });
+            `;
+            tableBody.appendChild(row);
+        });
         } catch (error) {
             console.error(error);
         }
     };
+
+const loanButtons = document.querySelectorAll('.loan-book-button');
+const returnButtons = document.querySelectorAll('.return-book-button');
     
 document.getElementById('book-table-body').addEventListener('click', async (event) => {
     if (event.target.classList.contains('delete_book')) {
@@ -84,17 +89,17 @@ document.getElementById('book-table-body').addEventListener('click', async (even
                 const newTitle = titleInput.value;
                 const newAuthor = authorInput.value;
                 const newCopiesAvailable = copiesAvailableInput.value;
-                const newdurtionType = durtionTypeInput.value
+                const newdurationType = durtionTypeInput.value
 
                 // Check if all fields are provided
-                if (newTitle && newAuthor && newCopiesAvailable &&newdurtionType !== '') {
+                if (newTitle && newAuthor && newCopiesAvailable && newdurationType !== '') {
                     // Use the `bookId` to identify the book to update
                     const bookId = event.target.getAttribute('data-id');
                     const bookData = {
                         title: newTitle,
                         author: newAuthor,
                         copies_available: newCopiesAvailable,
-                        loan_duration_type: newdurtionType
+                        loan_duration_type: newdurationType, // Include the new field
                     };
 
                     try {
@@ -187,6 +192,20 @@ document.querySelectorAll('.update-timer').forEach(timerElement => {
     setInterval(() => {
         timerElement.textContent = updateCountdownTimer(loanStartDate, dueDate);
     }, 60000); // Update every minute (adjust as needed)
+});
+
+function toggleTable(tableId) {
+    const table = document.getElementById(tableId);
+    if (table.style.display === 'none') {
+        table.style.display = 'block';
+    } else {
+        table.style.display = 'none';
+    }
+}
+
+const toggleBooksTable = document.getElementById('toggleBooksTable');
+toggleBooksTable.addEventListener('click', () => {
+    toggleTable('display_books');
 });
 
 getBooks();

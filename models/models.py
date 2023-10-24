@@ -105,7 +105,7 @@ def init_data():
             customer=customer1,
             book=book1,
             due_date=today + type1_duration,
-            loan_start_date=None
+            loan_start_date=today
         )
         session.add(loan1)
 
@@ -115,7 +115,7 @@ def init_data():
             customer=customer2,
             book=book2,
             due_date=today + type2_duration,
-            loan_start_date=None
+            loan_start_date=today
         )
         session.add(loan2)
     session.commit()

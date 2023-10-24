@@ -140,4 +140,18 @@ document.getElementById('add_customer_form').addEventListener('submit', async (e
     }
 });
 
+function toggleTable(tableId) {
+    const table = document.getElementById(tableId);
+    if (table.style.display === 'none') {
+        table.style.display = 'block';
+    } else {
+        table.style.display = 'none';
+    }
+}
+
+const toggleCustomersTable = document.getElementById('toggleCustomersTable');
+toggleCustomersTable.addEventListener('click', () => {
+    toggleTable('display_customers');
+});
+
 getCustomers();

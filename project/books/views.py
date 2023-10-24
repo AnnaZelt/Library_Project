@@ -18,19 +18,22 @@ def get_books():
 
     # Use the session to query the database
     books = session.query(Book).all()
+    print('---------------------')
 
     for book in books:
         res.append({
             "id": book.id,
             "title": book.title,
             "author": book.author,
-            "available copies": book.copies_available
+            "copies_available": book.copies_available,
+            "loan_duration_type": book.loan_duration_type
         })
+    print('---------------------')
 
     # Close the session
     session.close()
 
-    return json.dumps(res)
+    return jsonify(res)
 
 
 @books_blueprint.route('/books/add', methods=["POST"])
@@ -43,9 +46,10 @@ def add_books():
         title = data.get('title')
         author = data.get('author')
         copies_available = data.get('copies_available')
+        loan_duration_type = data.get('loan_duration_type')
 
         # Create a new Customer object
-        new_book = Book(title=title, author = author, copies_available = copies_available)
+        new_book = Book(title=title, author = author, copies_available = copies_available, loan_duration_type=loan_duration_type)
 
         # Create a session to interact with the database
         session = Session()
@@ -72,6 +76,7 @@ def update_book(id):
         title = data.get('title')
         author = data.get('author')
         copies_available = data.get('copies_available')  # Use 'copies_available' here
+        loan_duration_type = data.get('loan_duration_type')
 
         # Create a session to interact with the database
         session = Session()
@@ -87,6 +92,8 @@ def update_book(id):
                 book.author = author
             if copies_available is not None:  # Use 'copies_available' here
                 book.copies_available = copies_available  # Use 'copies_available' here
+            if loan_duration_type is not None:  # Use 'copies_available' here
+                book.loan_duration_type = loan_duration_type
             
             # Commit the changes to the database
             session.commit()
