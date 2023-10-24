@@ -1,13 +1,13 @@
-from operator import or_
 from models.models import Book, Loan
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime, timedelta
+from flask import request, jsonify
 
-# Replace 'your_database_uri' with the actual database URI
+# Create the SQLAlchemy session object (use a different name)
 engine = create_engine('sqlite:///library.db')
-Session = sessionmaker(bind=engine)
+DBSession = sessionmaker(bind=engine)
 
 loans_blueprint = Blueprint('loans', __name__)
 
@@ -16,7 +16,7 @@ def get_loans():
     res = []
     
     # Create a session to interact with the database
-    session = Session()
+    session = DBSession()
 
     # Use the session to query the database
     loans = session.query(Loan).all()
@@ -36,13 +36,38 @@ def get_loans():
 
     return jsonify(res)
 
+@loans_blueprint.route('/loans/late', methods=["GET"])
+def get_late_loans():
+    res = []
+    session = DBSession()
+    loans = session.query(Loan).all()
+
+    for loan in loans:
+        if loan.due_date < datetime.now().date() and loan.return_date is None:
+            # Check if the due date is in the past and the book has not been returned
+            res.append({
+                "id": loan.id,
+                "customer_id": loan.customer_id,
+                "book_id": loan.book_id,
+                "due_date": loan.due_date.strftime('%Y-%m-%d'),  # Format the date as a string
+                "return_date": None,
+                "loan_start_date": loan.loan_start_date.strftime('%Y-%m-%d')  # Format the date as a string
+            })
+
+    session.close()
+    return jsonify(res)
+
 @loans_blueprint.route('/loans/loan', methods=['POST'])
 def loan_book():
+    session = DBSession()
     data = request.get_json()
-    customer_id = data.get('customer_id')
+    print(data)
     book_id = data.get('book_id')
+    customer_id = data.get('customer_id')
     loan_duration_type = data.get('loan_duration_type')
 
+    if book_id is None or customer_id is None or loan_duration_type is None:
+        return jsonify({'message': 'Invalid request data'}), 400
     # Check if the book is on loan by the customer
     loan = session.query(Loan).filter_by(customer_id=customer_id, book_id=book_id, return_date=None).first()
 
@@ -50,10 +75,12 @@ def loan_book():
         return jsonify({'message': 'Book is already on loan by the customer'})
     else:
         # The book is available for loan; proceed with the loan
+        loan_duration_type = int(data.get('loan_duration_type'))
+        due_date = datetime.today() + timedelta(days=loan_duration_type)
         new_loan = Loan(
             customer_id=customer_id,
             book_id=book_id,
-            due_date=datetime.date.today() + datetime.timedelta(days=loan_duration_type),
+            due_date=due_date,
         )
         session.add(new_loan)
 
@@ -70,21 +97,19 @@ def loan_book():
             return jsonify({'message': 'No available copies of the book'})
 
 
-
-
-
 @loans_blueprint.route('/loans/return', methods=['POST'])
 def return_book():
+    session = DBSession()
     data = request.get_json()
     customer_id = data.get('customer_id')
     book_id = data.get('book_id')
-
+    
     # Check if the book is on loan by the customer
     loan = session.query(Loan).filter_by(customer_id=customer_id, book_id=book_id, return_date=None).first()
 
     if loan:
         # Update the return_date for the loan
-        loan.return_date = datetime.date.today()
+        loan.return_date = datetime.today()
 
         # Increment the copies_available count for the book
         book = session.query(Book).get(book_id)

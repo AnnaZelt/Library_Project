@@ -1,10 +1,13 @@
 const MY_SERVER = 'http://127.0.0.1:5000';
-
-const getCustomers = async () => {
+let customersData = [];
+// Function to get customers
+async function getCustomers() {
     try {
         const response = await axios.get(MY_SERVER + '/customers');
         const customers = response.data;
+        updateCustomerTable(customersData);
         const tableBody = document.getElementById('customer-table-body');
+        tableBody.innerHTML = ''; // Clear the table body
 
         customers.forEach(customer => {
             const row = document.createElement('tr');
@@ -13,48 +16,146 @@ const getCustomers = async () => {
                 <td>${customer.name}</td>
                 <td>${customer.email}</td>
                 <td>
-                    <button class="btn btn-danger delete_customer" data-id="${customer.id}">Delete</button>
-                    <button class="btn btn-info update_customer" data-id="${customer.id}">Update</button>
+                    <button class="btn btn-danger delete-customer" data-id="${customer.id}">Delete</button>
+                    <button class="btn btn-info update-customer" data-id="${customer.id}">Update</button>
                 </td>
             `;
             tableBody.appendChild(row);
         });
     } catch (error) {
         console.error(error);
+        // Handle the error and provide user feedback
     }
-};
+}
 
-document.getElementById('customer-table-body').addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete_customer')) {
-        // Handle Delete action
-        const customerId = event.target.getAttribute('data-id');
-        
-        try {
-            // Send a DELETE request to delete the customer
-            const response = await axios.delete(`${MY_SERVER}/customers/delete/${customerId}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            // Handle the server response for deletion
-            console.log('Customer deleted:', response.data);
+// Function to filter customers by name
+function filterCustomersByName(customers, searchTerm) {
+    return customers.filter(customer => customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
+}
 
-            // You can update the customer table after deletion if needed
-        } catch (error) {
-            console.error('Error deleting customer:', error);
+// Function to update the customer table with filtered data
+function updateCustomerTable(customers) {
+    const tableBody = document.getElementById('customer-table-body');
+    tableBody.innerHTML = ''; // Clear the table body
+
+    customers.forEach(customer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${customer.id}</td>
+            <td>${customer.name}</td>
+            <td>${customer.email}</td>
+            <td>
+                <button class="btn btn-danger delete-customer" data-id="${customer.id}">Delete</button>
+                <button class="btn btn-info update-customer" data-id="${customer.id}">Update</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Event listener for the search input
+document.getElementById('customer-search-input').addEventListener('input', handleSearchInput);
+
+function handleSearchInput() {
+    const searchInput = document.getElementById('customer-search-input');
+    const searchTerm = searchInput.value.trim();
+    const filteredCustomers = filterCustomersByName(customersData, searchTerm);
+    updateCustomerTable(filteredCustomers); // Update the table with filtered results
+}
+
+async function init() {
+    try {
+        const response = await axios.get(MY_SERVER + '/customers');
+        customersData = response.data; // Populate customersData with initial data
+        updateCustomerTable(customersData);
+    } catch (error) {
+        console.error(error);
+        // Handle the error and provide user feedback
+    }
+}
+
+init();
+
+async function addCustomer(name, email) {
+    try {
+        const customerData = {
+            name: name,
+            email: email
+        };
+
+        const response = await axios.post('/customers/add', customerData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.data.message === 'Customer added successfully') {
+            alert('Customer added successfully');
+        } else if (response.data.message === 'Customer with this email already exists') {
+            alert('Customer with this email already exists');
         }
-    } else  if (event.target.classList.contains('update_customer')) {
-        // Get the row of the clicked "Update" button
-        const row = event.target.parentElement.parentElement;
+    } catch (error) {
+        console.error('Error adding customer:', error);
+    }
+}
 
-        // Check if the update form is already present in the row
+
+// Function to delete a customer
+async function deleteCustomer(customerId) {
+    try {
+        const response = await axios.delete(`${MY_SERVER}/customers/delete/${customerId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log('Customer deleted:', response.data);
+        getCustomers(); // Refresh the customer list
+    } catch (error) {
+        console.error('Error deleting customer:', error);
+        // Handle the error and provide user feedback
+    }
+}
+
+// Function to update a customer
+async function updateCustomer(customerId, newName, newEmail) {
+    const customerData = {
+        id: customerId,
+        name: newName,
+        email: newEmail,
+    };
+
+    try {
+        const response = await axios.put(`${MY_SERVER}/customers/update/${customerId}`, customerData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.data.message === 'Customer updated successfully') {
+            alert('Customer updated successfully');
+            getCustomers(); // Refresh the customer list
+        } else {
+            alert('Error updating customer: ' + response.data.message);
+        }
+    } catch (error) {
+        console.error('Error updating customer:', error);
+    }
+}
+
+// Event delegation to handle various customer actions
+document.getElementById('customer-table-body').addEventListener('click', (event) => {
+    const target = event.target;
+    const customerId = target.getAttribute('data-id');
+
+    if (target.classList.contains('delete-customer')) {
+        deleteCustomer(customerId);
+    } else if (target.classList.contains('update-customer')) {
+        const row = target.parentElement.parentElement;
         if (!row.querySelector('.update-form')) {
-            // Create the update form
             const updateForm = document.createElement('div');
             updateForm.className = 'update-form';
 
-            // Create input fields for name and email
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
             nameInput.placeholder = 'New Name';
@@ -63,95 +164,58 @@ document.getElementById('customer-table-body').addEventListener('click', async (
             emailInput.type = 'text';
             emailInput.placeholder = 'New Email';
 
-            // Create a button to submit the update
             const updateButton = document.createElement('button');
             updateButton.textContent = 'Submit';
             updateButton.addEventListener('click', async () => {
-                // Get the new name and email values
                 const newName = nameInput.value;
                 const newEmail = emailInput.value;
 
-                // Check if both name and email are provided
                 if (newName && newEmail) {
-                    // Use the `customerId` to identify the customer to update
-                    const customerId = event.target.getAttribute('data-id');
-                    const customerData = {
-                        id: customerId,
-                        name: newName,
-                        email: newEmail,
-                    };
-
-                    try {
-                        // Send a PUT request to update the customer
-                        const response = await axios.put(`${MY_SERVER}/customers/update/${customerId}`, customerData, {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        // Handle the server response for updating
-                        console.log('Customer updated:', response.data);
-
-                        // You can update the customer table after updating if needed
-
-                        // Remove the update form from the row
-                        row.removeChild(updateForm);
-                    } catch (error) {
-                        console.error('Error updating customer:', error);
-                    }
+                    updateCustomer(customerId, newName, newEmail);
                 }
             });
 
-            // Append input fields and update button to the form
             updateForm.appendChild(nameInput);
             updateForm.appendChild(emailInput);
             updateForm.appendChild(updateButton);
 
-            // Insert the update form into the row
             row.appendChild(updateForm);
         }
     }
 });
 
-document.getElementById('add_customer_form').addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
+document.getElementById('add_customer_form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the default form submission
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
 
-    const customerData = {
-        name: name,
-        email: email
-    };
+    const name = nameInput.value;
+    const email = emailInput.value;
 
-    try {
-        const response = await axios.post(MY_SERVER + '/customers/add', customerData, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Handle the server response, e.g., display a success message
-        console.log('Customer added:', response.data);
-
-        // You can also update the customer table with the newly added customer here
-    } catch (error) {
-        console.error('Error adding customer:', error);
+    if (name && email) {
+        addCustomer(name, email);
+        // Optionally, clear the form fields after adding the customer
+        nameInput.value = '';
+        emailInput.value = '';
+    } else {
+        alert('Please fill in all the fields.');
     }
 });
 
-function toggleTable(tableId) {
-    const table = document.getElementById(tableId);
-    if (table.style.display === 'none') {
-        table.style.display = 'block';
+// Function to toggle the customer table
+function toggleCustomerTable() {
+    const customerTable = document.getElementById('display_customers');
+    if (customerTable.style.display === 'none' || customerTable.style.display === '') {
+        customerTable.style.display = 'block';
     } else {
-        table.style.display = 'none';
+        customerTable.style.display = 'none';
     }
+    getCustomers();
 }
 
 const toggleCustomersTable = document.getElementById('toggleCustomersTable');
-toggleCustomersTable.addEventListener('click', () => {
-    toggleTable('display_customers');
-});
+toggleCustomersTable.addEventListener('click', toggleCustomerTable);
 
+// Initial loading of customers
 getCustomers();

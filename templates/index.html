@@ -37,15 +37,61 @@
             display: flex;
             justify-content: space-between;
         }
+        .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 20px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 0;
+}
+
     </style>
     <title>Document</title>
 </head>
 <body>
     <div class="container">
         <div id="menu" style="display: flex; justify-content: center; gap: 10px;">
-            <button id="toggleBooksTable">Toggle Books Table</button>
-            <button id="toggleCustomersTable">Toggle Customers Table</button>
-            <button id="toggleLoansTable">Toggle Loans Table</button>
+            <button id="toggleBooksTable">Show Books</button>
+            <button id="toggleCustomersTable">Show Customers</button>
+            <button id="toggleLoansTable">Show Loans</button><br>
+            <button id="toggleLateLoansButton">Show Late Loans</button><br>
+            <div id="search-books">
+                <input type="text" id="book-search-input" placeholder="Enter book name">
+                <button id="book-search-button">Search</button>
+            </div>
+            <div id="search-customers">
+                <input type="text" id="customer-search-input" placeholder="Search by name">
+                <button id="book-search-button">Search</button>
+            </div>
+            
         </div><br>        
         <div id="add_forms">
             <div id="add_book_form" class="grid-form">
@@ -127,6 +173,7 @@
                 </thead>
                 <tbody id="loan-table-body"></tbody>
             </table>
+            <div id="lateLoansTable"></div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

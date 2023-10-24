@@ -1,10 +1,16 @@
 const MY_SERVER = 'http://127.0.0.1:5000';
 
-const getBooks = async () => {
+// Function to get books (with optional search term)
+async function getBooks(searchTerm = '') {
     try {
-        const response = await axios.get(MY_SERVER + '/books');
+        const response = await axios.get(MY_SERVER + '/books', {
+            params: {
+                title: searchTerm, // Pass the search term as a parameter
+            },
+        });
         const books = response.data;
         const tableBody = document.getElementById('book-table-body');
+        tableBody.innerHTML = ''; // Clear the table body
 
         books.forEach(book => {
             const row = document.createElement('tr');
@@ -13,58 +19,252 @@ const getBooks = async () => {
                 <td>${book.title}</td>
                 <td>${book.author}</td>
                 <td>${book.copies_available}</td>
-                <td>${book.loan_duration_type}</td>               
+                <td>${book.loan_duration_type}</td>
                 <td>
-                    <button class="btn btn-danger delete_book" data-id="${book.id}">Delete</button>
-                    <button class="btn btn-info update_book" data-id="${book.id}">Update</button>
-                    <button class="loan-book-button" data-bookid="${book.id}">Loan</button>
-                    <button class="return-book-button" data-bookid="${book.id}" style="display: none;">Return</button>
+                    <button class="btn btn-danger delete-book" data-id="${book.id}">Delete</button>
+                    <button class="btn btn-info update-book" data-id="${book.id}">Update</button>
+                    <button class="loan-book-button" data-bookid="${book.id}" onclick="loanBook('${book.id}', '${book.loan_duration_type}')">Loan</button>
+                    <button class="return-book-button" data-bookid="${book.id}">Return</button>
                 </td>
             `;
             tableBody.appendChild(row);
         });
-        } catch (error) {
-            console.error(error);
-        }
+    } catch (error) {
+        console.error(error);
+        // Handle the error and provide user feedback
+    }
+}
+
+
+// Function to filter books by name
+function filterBooksByTitle(books, searchTerm) {
+    return books.filter(book => book.title.toLowerCase().includes(searchTerm.toLowerCase()));
+}
+
+// Function to update the book table with filtered data
+function updateBookTable(books) {
+    const tableBody = document.getElementById('book-table-body');
+    tableBody.innerHTML = ''; // Clear the table body
+
+    books.forEach(book => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${book.id}</td>
+            <td>${book.title}</td>
+            <td>${book.author}</td>
+            <td>${book.copies_available}</td>
+            <td>${book.loan_duration_type}</td>
+            <td>
+                <button class="btn btn-danger delete-book" data-id="${book.id}">Delete</button>
+                <button class="btn btn-info update-book" data-id="${book.id}">Update</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// Event listener for the search input
+document.getElementById('book-search-input').addEventListener('input', handleSearchInput);
+
+function handleSearchInput() {
+    const searchInput = document.getElementById('book-search-input');
+    const searchTerm = searchInput.value.trim();
+    const filteredBooks = filterBooksByTitle(bookData, searchTerm);
+    updateBookTable(filteredBooks); // Update the table with filtered results
+}
+
+let bookData = []
+async function init() {
+    try {
+        const response = await axios.get(MY_SERVER + '/books');
+        bookData = response.data; // Populate bookData with initial data
+        updateBookTable(bookData);
+    } catch (error) {
+        console.error(error);
+        // Handle the error and provide user feedback
+    }
+}
+
+init();
+
+async function addBook(title, author, copiesAvailable, loanDurationType) {
+    const bookData = {
+        title: title,
+        author: author,
+        copies_available: copiesAvailable,
+        loan_duration_type: loanDurationType,
     };
 
-const loanButtons = document.querySelectorAll('.loan-book-button');
-const returnButtons = document.querySelectorAll('.return-book-button');
-    
-document.getElementById('book-table-body').addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete_book')) {
-        // Handle Delete action
-        const bookId = event.target.getAttribute('data-id');
-        
-        try {
-            // Send a DELETE request to delete the book
-            const response = await axios.delete(`${MY_SERVER}/books/delete/${bookId}`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            
-            // Handle the server response for book deletion
-            console.log('Book deleted:', response.data);
+    try {
+        const response = await axios.post(`${MY_SERVER}/books/add`, bookData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-            // You can update the book table after deletion if needed
-            // For example, remove the corresponding row from the table
-            const row = event.target.parentElement.parentElement;
-            row.remove();
-        } catch (error) {
-            console.error('Error deleting book:', error);
+        if (response.data.message === 'Book added successfully') {
+            alert('Book added successfully');
+            getBooks(); // Refresh the book list
+        } else {
+            alert('Error adding book: ' + response.data.message);
         }
-    } else if (event.target.classList.contains('update_book')) {
-        // Get the row of the clicked "Update" button
-        const row = event.target.parentElement.parentElement;
+    } catch (error) {
+        console.error('Error adding book:', error);
+    }
+}
 
-        // Check if the update form is already present in the row
+// Event listener for the "Add Book" form submission
+document.getElementById('add_book_form').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent form submission and page reload
+
+    const titleInput = document.getElementById('title');
+    const authorInput = document.getElementById('author');
+    const copiesAvailableInput = document.getElementById('copies_available');
+    const loanDurationTypeInput = document.getElementById('loan_duration_type');
+
+    const title = titleInput.value;
+    const author = authorInput.value;
+    const copiesAvailable = copiesAvailableInput.value;
+    const loanDurationType = loanDurationTypeInput.value;
+
+    if (title && author && copiesAvailable && loanDurationType) {
+        addBook(title, author, copiesAvailable, loanDurationType);
+        // Optionally, clear the form fields after adding the book
+        titleInput.value = '';
+        authorInput.value = '';
+        copiesAvailableInput.value = '';
+        loanDurationTypeInput.value = '';
+    } else {
+        alert('Please fill in all the fields.');
+    }
+});
+
+// Function to handle loaning a book
+async function loanBook(bookId, loanDurationType) {
+    const customerID = prompt('Enter customer ID:');
+    if (customerID) {
+        const bookID = prompt('Enter book ID:'); // Prompt for book ID
+        if (bookID) {
+            try {
+                // Prompt for loan duration type
+                const loan_duration_type = prompt('Enter loan duration type:');
+                if (loan_duration_type) {
+                    const loanData = {
+                        customer_id: customerID,
+                        book_id: bookID,
+                        loan_duration_type: loan_duration_type,
+                    };
+
+                    const response = await axios.post(`${MY_SERVER}/loans/loan`, loanData, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.data.message === 'Book loaned successfully') {
+                        alert('Book loaned successfully');
+                    } else if (response.data.message === 'Book is already on loan by the customer') {
+                        alert('Book is already on loan by the customer');
+                    } else if (response.data.message === 'No available copies of the book') {
+                        alert('No available copies of the book');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loaning book:', error);
+            }
+        }
+    }
+}
+
+
+
+// Function to handle returning a book
+async function returnBook(bookId) {
+    const customerID = prompt('Enter customer ID:');
+    if (customerID) {
+        const returnData = {
+            customer_id: customerID,
+            book_id: bookId,
+        };
+
+        try {
+            const response = await axios.post('/loans/return', returnData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.data.message === 'Book returned successfully') {
+                alert('Book returned successfully');
+            } else {
+                alert('Error returning book: ' + response.data.message);
+            }
+        } catch (error) {
+            console.error('Error returning book:', error);
+        }
+    }
+}
+
+async function updateBook(bookId, newTitle, newAuthor, newCopiesAvailable, newLoanDurationType) {
+    const bookData = {
+        id: bookId,
+        title: newTitle,
+        author: newAuthor,
+        copies_available: newCopiesAvailable,
+        loan_duration_type: newLoanDurationType,
+    };
+
+    try {
+        const response = await axios.put(`${MY_SERVER}/books/update/${bookId}`, bookData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.data.message === 'Book updated successfully') {
+            // alert('Book updated successfully');
+            // getBooks(); // Refresh the book list
+        } else {
+            alert('Error updating book: ' + response.data.message);
+        }
+    } catch (error) {
+        console.error('Error updating book:', error);
+    }
+}
+
+async function deleteBook(bookId) {
+    try {
+        const response = await axios.delete(`${MY_SERVER}/books/delete/${bookId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log('Book deleted:', response.data);
+        getBooks(); // Refresh the book list
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        // Handle the error and provide user feedback
+    }
+}
+
+// Event delegation to handle various book actions
+document.getElementById('book-table-body').addEventListener('click', (event) => {
+    const target = event.target;
+    const bookId = target.getAttribute('data-id');
+
+    if (target.classList.contains('loan-book-button')) {
+        loanBook(bookId);
+    } else if (target.classList.contains('return-book-button')) {
+        returnBook(bookId);
+    } else if (target.classList.contains('delete-book')) {
+        deleteBook(bookId);
+    } else if (target.classList.contains('update-book')) {
+        const row = target.parentElement.parentElement;
         if (!row.querySelector('.update-form')) {
-            // Create the update form
             const updateForm = document.createElement('div');
             updateForm.className = 'update-form';
 
-            // Create input fields for title, author, and copies_available
             const titleInput = document.createElement('input');
             titleInput.type = 'text';
             titleInput.placeholder = 'New Title';
@@ -77,94 +277,65 @@ document.getElementById('book-table-body').addEventListener('click', async (even
             copiesAvailableInput.type = 'number';
             copiesAvailableInput.placeholder = 'New Available Copies';
 
-            const durtionTypeInput = document.createElement('input');
-            durtionTypeInput.type = 'number';
-            durtionTypeInput.placeholder = 'New Duration Type';
+            const durationTypeInput = document.createElement('input');
+            durationTypeInput.type = 'number';
+            durationTypeInput.placeholder = 'New Duration Type';
 
-            // Create a button to submit the update
             const updateButton = document.createElement('button');
             updateButton.textContent = 'Submit';
             updateButton.addEventListener('click', async () => {
-                // Get the new values
                 const newTitle = titleInput.value;
                 const newAuthor = authorInput.value;
                 const newCopiesAvailable = copiesAvailableInput.value;
-                const newdurationType = durtionTypeInput.value
+                const newDurationType = durationTypeInput.value;
 
-                // Check if all fields are provided
-                if (newTitle && newAuthor && newCopiesAvailable && newdurationType !== '') {
-                    // Use the `bookId` to identify the book to update
-                    const bookId = event.target.getAttribute('data-id');
-                    const bookData = {
-                        title: newTitle,
-                        author: newAuthor,
-                        copies_available: newCopiesAvailable,
-                        loan_duration_type: newdurationType, // Include the new field
-                    };
-
-                    try {
-                        // Send a PUT request to update the book
-                        const response = await axios.put(`${MY_SERVER}/books/update/${bookId}`, bookData, {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        // Handle the server response for updating
-                        console.log('Book updated:', response.data);
-
-                        // You can update the book table after updating if needed
-
-                        // Remove the update form from the row
-                        row.removeChild(updateForm);
-                    } catch (error) {
-                        console.error('Error updating book:', error);
-                    }
+                if (newTitle && newAuthor && newCopiesAvailable && newDurationType !== '') {
+                    updateBook(bookId, newTitle, newAuthor, newCopiesAvailable, newDurationType);
                 }
             });
 
-            // Append input fields and update button to the form
             updateForm.appendChild(titleInput);
             updateForm.appendChild(authorInput);
             updateForm.appendChild(copiesAvailableInput);
-            updateForm.appendChild(durtionTypeInput);
+            updateForm.appendChild(durationTypeInput);
             updateForm.appendChild(updateButton);
 
-            // Insert the update form into the row
             row.appendChild(updateForm);
         }
     }
 });
 
-document.getElementById('add_book_form').addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the default form submission behavior
+// Event delegation to handle various book actions
+document.getElementById('book-table-body').addEventListener('click', (event) => {
+    const target = event.target;
+    const bookId = target.getAttribute('data-id');
 
-    const title = document.getElementById('title').value;
-    const author = document.getElementById('author').value;
-    const copies_available = document.getElementById('copies_available').value;
-    const loan_duration_type =document.getElementById('loan_duration_type').value
-
-    const bookData = {
-        title: title,
-        author: author,
-        copies_available: copies_available,
-        loan_duration_type: loan_duration_type
-    };
-
-    try {
-        const response = await axios.post(MY_SERVER + '/books/add', bookData, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Handle the server response, e.g., display a success message
-        console.log('Book added:', response.data);
-
-        // You can also update the customer table with the newly added customer here
-    } catch (error) {
-        console.error('Error adding book:', error);
+    if (target.classList.contains('loan-book-button')) {
+        loanBook(bookId);
+    } else if (target.classList.contains('return-book-button')) {
+        returnBook(bookId);
+    } else if (target.classList.contains('delete-book')) {
+        deleteBook(bookId);
+    } else if (target.classList.contains('update-book')) {
+        updateBook(bookId)
     }
+});
+
+document.getElementById('toggleBooksTable').addEventListener('click', function () {
+    const booksTable = document.getElementById('display_books');
+    if (booksTable.style.display === 'none' || booksTable.style.display === '') {
+        booksTable.style.display = 'block';
+    } else {
+        booksTable.style.display = 'none';
+    }
+    getBooks();
+});
+
+// Function to search for books by name
+document.getElementById('book-search-button').addEventListener('click', () => {
+    const searchInput = document.getElementById('book-search-input');
+    const searchTerm = searchInput.value.trim();
+    getBooks(searchTerm);
 });
 
 // Function to update countdown timer
@@ -173,7 +344,6 @@ function updateCountdownTimer(loanStartDate, dueDate) {
     const timeRemaining = dueDate - now;
 
     if (timeRemaining <= 0) {
-        // If the due date has passed, display an appropriate message
         return "Overdue.";
     }
 
@@ -184,7 +354,7 @@ function updateCountdownTimer(loanStartDate, dueDate) {
     return `${daysRemaining}d ${hoursRemaining}h ${minutesRemaining}m`;
 }
 
-// Get all elements with the 'update-timer' class and update their countdown timers
+// Function to update countdown timers for loans
 document.querySelectorAll('.update-timer').forEach(timerElement => {
     const loanStartDate = new Date(timerElement.getAttribute('data-loan-start-date'));
     const dueDate = new Date(timerElement.getAttribute('data-due-date'));
@@ -194,18 +364,5 @@ document.querySelectorAll('.update-timer').forEach(timerElement => {
     }, 60000); // Update every minute (adjust as needed)
 });
 
-function toggleTable(tableId) {
-    const table = document.getElementById(tableId);
-    if (table.style.display === 'none') {
-        table.style.display = 'block';
-    } else {
-        table.style.display = 'none';
-    }
-}
-
-const toggleBooksTable = document.getElementById('toggleBooksTable');
-toggleBooksTable.addEventListener('click', () => {
-    toggleTable('display_books');
-});
-
+// Initial loading of books
 getBooks();

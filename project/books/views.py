@@ -11,14 +11,21 @@ books_blueprint = Blueprint('books', __name__)
 
 @books_blueprint.route('/books', methods=["GET"])
 def get_books():
+    search_term = request.args.get('name')
     res = []
 
     # Create a session to interact with the database
     session = Session()
 
     # Use the session to query the database
-    books = session.query(Book).all()
-    print('---------------------')
+    if search_term:
+        # Perform a case-insensitive search if a search term is provided
+        query = session.query(Book).filter(Book.title.ilike(f"%{search_term}%"))
+    else:
+        # If no search term is provided, get all books
+        query = session.query(Book)
+
+    books = query.all()
 
     for book in books:
         res.append({
@@ -28,7 +35,6 @@ def get_books():
             "copies_available": book.copies_available,
             "loan_duration_type": book.loan_duration_type
         })
-    print('---------------------')
 
     # Close the session
     session.close()
@@ -75,7 +81,7 @@ def update_book(id):
         # Extract parameters from JSON data
         title = data.get('title')
         author = data.get('author')
-        copies_available = data.get('copies_available')  # Use 'copies_available' here
+        copies_available = data.get('copies_available')
         loan_duration_type = data.get('loan_duration_type')
 
         # Create a session to interact with the database
@@ -90,11 +96,11 @@ def update_book(id):
                 book.title = title
             if author is not None:
                 book.author = author
-            if copies_available is not None:  # Use 'copies_available' here
-                book.copies_available = copies_available  # Use 'copies_available' here
-            if loan_duration_type is not None:  # Use 'copies_available' here
+            if copies_available is not None:
+                book.copies_available = copies_available
+            if loan_duration_type is not None:
                 book.loan_duration_type = loan_duration_type
-            
+
             # Commit the changes to the database
             session.commit()
 
