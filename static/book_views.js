@@ -35,7 +35,6 @@ async function getBooks(searchTerm = '') {
     }
 }
 
-
 // Function to filter books by name
 function filterBooksByTitle(books, searchTerm) {
     return books.filter(book => book.title.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -84,7 +83,6 @@ async function init() {
         // Handle the error and provide user feedback
     }
 }
-
 init();
 
 async function addBook(title, author, copiesAvailable, loanDurationType) {
@@ -175,8 +173,6 @@ async function loanBook(bookId, loanDurationType) {
         }
     }
 }
-
-
 
 // Function to handle returning a book
 async function returnBook(bookId) {
@@ -321,6 +317,7 @@ document.getElementById('book-table-body').addEventListener('click', (event) => 
     }
 });
 
+// Function for show books button listener
 document.getElementById('toggleBooksTable').addEventListener('click', function () {
     const booksTable = document.getElementById('display_books');
     if (booksTable.style.display === 'none' || booksTable.style.display === '') {

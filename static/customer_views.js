@@ -1,5 +1,6 @@
 const MY_SERVER = 'http://127.0.0.1:5000';
 let customersData = [];
+
 // Function to get customers
 async function getCustomers() {
     try {
@@ -73,7 +74,6 @@ async function init() {
         // Handle the error and provide user feedback
     }
 }
-
 init();
 
 async function addCustomer(name, email) {

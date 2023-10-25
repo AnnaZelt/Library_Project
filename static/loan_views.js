@@ -64,7 +64,6 @@ async function loanBook(bookID, loanDurationType) {
     }
 }
 
-
 // Function to return a book
 async function returnBook() {
     const loanID = document.getElementById('loanID').value;
@@ -173,7 +172,6 @@ async function showLateLoans() {
 // Event listener for the "Show Late Loans" button
 const toggleLateLoansButton = document.getElementById('toggleLateLoansButton');
 toggleLateLoansButton.addEventListener('click', showLateLoans);
-
 
 // Call the function to fetch and display loans when needed
 getLoans();
