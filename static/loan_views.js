@@ -36,7 +36,6 @@ async function loanBook(bookID, loanDurationType) {
         alert('Invalid customer ID');
         return;
     }
-
     // Prepare the loan data
     const loanData = {
         customer_id: customerID,
