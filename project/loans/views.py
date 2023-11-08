@@ -78,6 +78,7 @@ def loan_book():
             book_id=book_id,
             due_date=due_date,
         )
+        print(jsonify(new_loan))
         session.add(new_loan)
 
         # Decrement the copies_available count for the book

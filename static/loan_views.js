@@ -1,4 +1,5 @@
-const MY_SERVER = 'https://library-project-test1.onrender.com/';
+// const MY_SERVER = 'https://library-project-test1.onrender.com/';
+const MY_SERVER = 'http://127.0.0.1:5000';
 
 // Function to get loans
 async function getLoans() {
@@ -23,72 +24,6 @@ async function getLoans() {
     } catch (error) {
         console.error(error);
         // Handle the error and provide user feedback
-    }
-}
-
-// Function to loan a book
-async function loanBook(bookID, loanDurationType) {
-    // Prompt the user for the customer_id
-    const customerID = prompt('Enter customer ID:');
-
-    if (!customerID) {
-        // The user cancelled the prompt or provided an empty input
-        alert('Invalid customer ID');
-        return;
-    }
-    // Prepare the loan data
-    const loanData = {
-        customer_id: customerID,
-        book_id: bookID,  // This should receive the book_id parameter
-        loan_duration_type: loanDurationType,  // This should receive the loan_duration_type parameter
-        due_date: dueDate,
-    };
-
-    try {
-        const response = await axios.post(`${MY_SERVER}/loans/loan`, loanData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (response.data.message === 'Book loaned successfully') {
-            alert('Book loaned successfully');
-            // Update the display to reflect the new loan
-            getLoans(); // Refresh the loans list
-        } else {
-            alert('Error creating loan: ' + response.data.message);
-        }
-    } catch (error) {
-        console.error('Error creating loan:', error);
-    }
-}
-
-// Function to return a book
-async function returnBook() {
-    const loanID = document.getElementById('loanID').value;
-    const returnDate = document.getElementById('returnDate').value;
-
-    const returnData = {
-        loan_id: loanID,
-        return_date: returnDate,
-    };
-
-    try {
-        const response = await axios.post(`${MY_SERVER}/loans/return`, returnData, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (response.data.message === 'Book returned successfully') {
-            alert('Book returned successfully');
-            // Update the display to reflect the return
-            getLoans(); // Refresh the loans list
-        } else {
-            alert('Error returning book: ' + response.data.message);
-        }
-    } catch (error) {
-        console.error('Error returning book:', error);
     }
 }
 
