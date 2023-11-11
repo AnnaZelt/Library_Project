@@ -105,7 +105,20 @@
                 </thead>
                 <tbody id="loan-table-body"></tbody>
             </table>
-            <div id="lateLoansTable"></div>
+            <div id="lateLoansTable" style="display: none;">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer ID</th>
+                            <th>Book ID</th>
+                            <th>Due Date</th>
+                            <th>Loan Start Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lateLoans-table-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

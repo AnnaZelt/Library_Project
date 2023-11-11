@@ -42,26 +42,10 @@ const toggleLoansTable = document.getElementById('toggleLoansTable');
 toggleLoansTable.addEventListener('click', toggleLoanTable);
 // Function to display late loans
 function displayLateLoans(lateLoans) {
-    const lateLoansTable = document.getElementById('lateLoansTable');
-    lateLoansTable.innerHTML = ''; // Clear the table
+    const lateLoansTableBody = document.getElementById('lateLoans-table-body');
+    lateLoansTableBody.innerHTML = ''; // Clear the table body
 
     if (lateLoans.length > 0) {
-        const table = document.createElement('table');
-        const tableHeader = document.createElement('thead');
-        const tableBody = document.createElement('tbody');
-
-        // Create table headers
-        const headerRow = document.createElement('tr');
-        const headers = ['ID', 'Customer ID', 'Book ID', 'Due Date', 'Loan Start Date'];
-        headers.forEach(headerText => {
-            const th = document.createElement('th');
-            th.textContent = headerText;
-            headerRow.appendChild(th);
-        });
-
-        tableHeader.appendChild(headerRow);
-        table.appendChild(tableHeader);
-
         // Populate the table with late loans
         lateLoans.forEach(loan => {
             const row = document.createElement('tr');
@@ -72,16 +56,13 @@ function displayLateLoans(lateLoans) {
                 <td>${loan.due_date}</td>
                 <td>${loan.loan_start_date}</td>
             `;
-            tableBody.appendChild(row);
+            lateLoansTableBody.appendChild(row);
         });
-
-        table.appendChild(tableBody);
-        lateLoansTable.appendChild(table);
     } else {
         // No late loans, display a message
         const noLateLoansMessage = document.createElement('p');
         noLateLoansMessage.textContent = 'No late loans';
-        lateLoansTable.appendChild(noLateLoansMessage);
+        lateLoansTableBody.appendChild(noLateLoansMessage);
     }
 }
 

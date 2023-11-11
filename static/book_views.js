@@ -202,9 +202,9 @@ document.getElementById('book-table-body').addEventListener('click', (event) => 
 const loanBook= async(bookID, loanDurationType)=> {
     console.log(loanDurationType)
     // Prompt the user for the customer_id
-    const customerID = prompt('Enter customer ID:');
+    const customerIdLoan = prompt('Enter customer ID:');
 
-    if (!customerID) {
+    if (!customerIdLoan) {
 
         // The user cancelled the prompt or provided an empty input
         alert('Invalid customer ID');
@@ -213,13 +213,12 @@ const loanBook= async(bookID, loanDurationType)=> {
 
     // Prepare the loan data using the parameters
     const loanData = {
-        customer_id: customerID,
+        customer_id: customerIdLoan,
         book_id: bookID,
         loan_duration_type: loanDurationType,
     };
-    console.log('------------------loan------------------  '+loanData)
     try {
-        const response = await axios.post(`${MY_SERVER}/loans/loan`, loanData, {
+        const response = await axios.post(`${MY_SERVER}/loans/loan`, JSON.stringify(loanData), {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -238,27 +237,21 @@ const loanBook= async(bookID, loanDurationType)=> {
 
 // Function to return a book
 async function returnBook(bookId) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const formattedDate = `${year}-${month}-${day}`;
+    const customerIdReturn = prompt('Enter customer ID:');
     const returnData = {
         book_id: bookId,
-        return_date: formattedDate,
+        customer_id: customerIdReturn
     };
 
     try {
-        const response = await axios.post(`${MY_SERVER}/loans/return`, returnData, {
+        const response = await axios.post(`${MY_SERVER}/loans/return`, JSON.stringify(returnData), {
             headers: {
                 'Content-Type': 'application/json',
             },
         });
-
         if (response.data.message === 'Book returned successfully') {
             alert('Book returned successfully');
             // Update the display to reflect the return
-            getLoans(); // Refresh the loans list
         } else {
             alert('Error returning book: ' + response.data.message);
         }
@@ -284,8 +277,8 @@ async function updateBook(bookId, newTitle, newAuthor, newCopiesAvailable, newLo
         });
 
         if (response.data.message === 'Book updated successfully') {
-            // alert('Book updated successfully');
-            // getBooks(); // Refresh the book list
+            alert('Book updated successfully');
+            getBooks(); 
         } else {
             alert('Error updating book: ' + response.data.message);
         }

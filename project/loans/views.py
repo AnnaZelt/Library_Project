@@ -45,8 +45,9 @@ def get_late_loans():
                 "book_id": loan.book_id,
                 "due_date": loan.due_date.strftime('%Y-%m-%d'),  # Format the date as a string
                 "return_date": None,
-                "loan_start_date": loan.loan_start_date.strftime('%Y-%m-%d')  # Format the date as a string
+                "loan_start_date": loan.loan_start_date.strftime('%Y-%m-%d %H:%M:%S') if loan.loan_start_date else None  # Format the datetime as a string
             })
+
 
     session.close()
     return jsonify(res)
@@ -72,13 +73,20 @@ def loan_book():
         return jsonify({'message': 'Book is already on loan by the customer'})
     else:
         loan_duration_type = int(data.get('loan_duration_type'))
-        due_date = datetime.today() + timedelta(days=loan_duration_type)
+        loan_start_date = datetime.today()
+        if loan_duration_type == 1:
+            due_date = datetime.today() + timedelta(days=2)
+        if loan_duration_type == 2:
+            due_date = datetime.today() + timedelta(days=5)
+        if loan_duration_type == 3:
+            due_date = datetime.today() + timedelta(days=10)
+
         new_loan = Loan(
             customer_id=customer_id,
             book_id=book_id,
             due_date=due_date,
+            loan_start_date=loan_start_date
         )
-        print(jsonify(new_loan))
         session.add(new_loan)
 
         # Decrement the copies_available count for the book
