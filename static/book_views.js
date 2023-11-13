@@ -1,5 +1,5 @@
-// const MY_SERVER = 'https://library-project-test1.onrender.com/';
-const MY_SERVER = 'http://127.0.0.1:5000/';
+const MY_SERVER = 'https://library-project-test1.onrender.com/';
+// const MY_SERVER = 'http://127.0.0.1:5000/';
 
 // Function to get books (with optional search term)
 async function getBooks(searchTerm = '') {
